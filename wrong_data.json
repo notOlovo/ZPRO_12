@@ -1,0 +1,20 @@
+2{
+    "classrooms": [
+        {
+            "room_number": "101",
+            "building": "Main",
+            "capacity": 30,
+            "equipment": ["Projector"]
+        }
+    ],
+    "reservations": [
+        {
+            "room_number": "101",
+            "name_person": "Ivanov",
+            "purpose": "Math",
+            "date": "20.201.2024",
+            "start_time": "10:001",
+            "end_time": "12:00"
+        }
+    ]
+}
