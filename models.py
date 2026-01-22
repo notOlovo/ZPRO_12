@@ -40,6 +40,9 @@ class ReservationBook:
         self.reservations = []
 
     def add_classroom(self, room_number, building, capacity, equipment):
+        if self.find_room(room_number):
+             print(f"Error: Classroom {room_number} already exists.")
+             return
         new_room = Classroom(room_number, building, capacity, equipment)
         self.classrooms.append(new_room)
         print(f"Classroom {room_number} added.")
@@ -48,11 +51,12 @@ class ReservationBook:
         if not self.find_room(room_number):
             print(f"Error: Room {room_number} does not exist! Create it first.")
             return
-
-        if self.check_conflict(room_number, date, start_time, end_time):
-            print(f"Error: Room {room_number} is reserved at this time!")
+        if start_time >= end_time:
+            print("Error: Start time must be before end time!")
             return
-        
+        if self.check_conflict(room_number, date, start_time, end_time):
+            print(f"Error: Room {room_number} is ALREADY RESERVED at this time interval!")
+            return
         new_reservation = Reservation(room_number, name_person, purpose, date, start_time, end_time)
         self.reservations.append(new_reservation)
         print(f"Success: Reservation for {name_person} added.")
@@ -75,11 +79,13 @@ class ReservationBook:
         if not self.reservations:
             print("No reservations yet.")
         for res in self.reservations:
-            print(f"Room: {res.room_number} | {res.date} {res.start_time}-{res.end_time} | {res.name_person} ({res.purpose})")
+            print(f"Room: {res.room_number} | Date: {res.date} | Time: {res.start_time}-{res.end_time} | For: {res.name_person}")
         print("------------------------\n")
 
     def print_classrooms(self):
         print("\n--- Classrooms ---")
+        if not self.classrooms:
+            print("No classrooms yet.")
         for room in self.classrooms:
             print(f"Room {room.room_number} ({room.building}) - Capacity: {room.capacity}")
         print("------------------\n")
@@ -117,18 +123,13 @@ class ReservationBook:
         try:
             with open(filename, 'r', encoding='utf-8') as f:
                 data = json.load(f)
-            
             self.classrooms = []
             self.reservations = []
-
             for c in data["classrooms"]:
-                self.add_classroom(c["room_number"], c["building"], c["capacity"], c["equipment"])
-            
+                self.classrooms.append(Classroom(c["room_number"], c["building"], c["capacity"], c["equipment"]))
             for r in data["reservations"]:
-                new_res = Reservation(r["room_number"], r["name_person"], r["purpose"], r["date"], r["start_time"], r["end_time"])
-                self.reservations.append(new_res)
-            
-            print(f"Loaded from {filename}")
+                self.reservations.append(Reservation(r["room_number"], r["name_person"], r["purpose"], r["date"], r["start_time"], r["end_time"]))
+            print(f"Loaded from {filename}. Total rooms: {len(self.classrooms)}, Total reservations: {len(self.reservations)}")
         except FileNotFoundError:
             print("File not found.")
         except Exception as e:
